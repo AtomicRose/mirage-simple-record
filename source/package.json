@@ -1,0 +1,10 @@
+{
+    "name": "WorkingRecord",
+    "version": "0.0.1",
+    "main": "./src/view/index.html",
+    "window": {
+        "width": 1000,
+        "height": 600,
+        "fullscreen": false
+    }
+}

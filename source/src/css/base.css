@@ -1,0 +1,37 @@
+.pdt-10{
+    padding-top: 10px;
+}
+.pdb-10{
+    padding-bottom: 10px;
+}
+.pdl-10{
+    padding-left: 10px;
+}
+.pdr-10{
+    padding-right: 10px;
+}
+.mgt-10{
+    margin-top: 10px;
+}
+.mgb-10{
+    margin-bottom: 10px;
+}
+.mgl-10{
+    margin-left: 10px;
+}
+.mgr-10{
+    margin-right: 10px;
+}
+.block{
+    background: rgba(255,255,255,.1);
+    padding-top: 10px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+.tag-title{
+    color: #eee;
+    font-size: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255, .2);
+}
+.info-block{}
