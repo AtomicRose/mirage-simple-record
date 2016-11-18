@@ -6,10 +6,10 @@ var dataProcess = {
         fs.readFile(path, function (err, content) {
             if (err) {
                 console.log('read json data error.', err);
+                callback(false);
                 return false;
             }
             var result = content.toString() ? JSON.parse(content.toString()) : content.toString();
-            console.log(result);
             callback(result);
         });
     },
@@ -20,9 +20,10 @@ var dataProcess = {
         fs.writeFile(path, data, function (err) {
             if (err) {
                 console.log('write json data error.', err);
+                callback(false);
                 return false;
             }
-            callback();
+            callback(true);
         });
     }
 };

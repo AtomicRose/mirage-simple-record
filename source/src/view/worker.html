@@ -12,7 +12,7 @@
     <script src="../js/lib/jquery-3.1.1.min.js"></script>
     <script src="../js/lib/bootstrap.js"></script>
 </head>
-<body>
+<body controller="WorkerManageCtrl">
 <nav class="navbar navbar-default" role="navigation">
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
@@ -94,6 +94,38 @@
                         <th>操作</th>
                     </tr>
                 </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modifyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel">修改人员信息</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="col-md-12">
+                        <form role="form">
+                            <div class="form-group">
+                                <label for="modifyWorkerName">姓名</label>
+                                <input type="text" class="form-control" id="modifyWorkerName" placeholder="请输入姓名">
+                            </div>
+                            <div class="form-group">
+                                <label for="modifyEntryTime">入职时间</label>
+                                <input type="date" class="form-control" id="modifyEntryTime">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-info" id="btn_modifyWorkerSave">保存</button>
             </div>
         </div>
     </div>
