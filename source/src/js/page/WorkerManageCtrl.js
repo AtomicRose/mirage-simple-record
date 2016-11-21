@@ -78,7 +78,15 @@ var WorkerManageCtrl = function () {
                     $('.btn-worker-delete').on('click', function () {
                         //delete the worker by id
                         var id = parseInt(this.getAttribute('data-worker'));
-                        deleteWorkerById(id);
+                        dialog.confirm('确定删除该人员吗？',{
+                            type: 'danger',
+                            title: '确认信息',
+                            callback: function(value){
+                                if(value){
+                                    deleteWorkerById(id);
+                                }
+                            }
+                        });
                     });
                 } else {
                     var e = document.createElement('tr');
@@ -112,9 +120,12 @@ var WorkerManageCtrl = function () {
                             return true;
                         }
                     }
+                    dialog.toast('未找到相关人员', {
+                        type: 'warning'
+                    });
                 } else {
-                    dialog.toast('删除失败，请重试', {
-                        type: 'danger'
+                    dialog.toast('未找到相关人员', {
+                        type: 'warning'
                     });
                 }
             });
@@ -152,9 +163,12 @@ var WorkerManageCtrl = function () {
                             return true;
                         }
                     }
+                    dialog.toast('未找到相关人员', {
+                        type: 'warning'
+                    });
                 } else {
-                    dialog.toast('删除失败，请重试', {
-                        type: 'danger'
+                    dialog.toast('未找到相关人员', {
+                        type: 'warning'
                     });
                 }
             });

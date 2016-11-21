@@ -22,6 +22,24 @@ var dialog = {
         var ele = document.createElement('div');
         ele.innerHTML = setHtml(str, options, true);
         document.body.appendChild(ele);
+        var cancel = ele.getElementsByClassName('btn-confirm-cancel');
+        for(var i=0; i<cancel.length; i++){
+            cancel[i].addEventListener('click', function(){
+                if(config.callback){
+                    config.callback(false);
+                }
+                ele.remove();
+            });
+        }
+        var ok = ele.getElementsByClassName('btn-confirm-ok');
+        for(var j=0; j<ok.length; j++){
+            ok[j].addEventListener('click', function(){
+                if(config.callback){
+                    config.callback(true);
+                }
+                ele.remove();
+            });
+        }
     },
     toast: function (str, config) {
         var options = defaults;
@@ -39,12 +57,12 @@ var dialog = {
 
 function setHtml(htmlStr, options, isConfirm, isToast) {
     var html = '<div class="alert alert-' + options.type + ' alert-dismissible fade in" role="alert">\
-            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>\
+            <button type="button" class="close btn-confirm-cancel" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>\
             <h4 class="' + (isToast ? 'hidden' : '') + '">' + options.title + '</h4>\
             <p>' + htmlStr + '</p>\
             <p class="' + (isConfirm ? '' : 'hidden') + '">\
-                <button type="button" class="btn btn-sm btn-' + options.type + '">' + options.okText + '</button>\
-                <button type="button" class="btn btn-sm btn-default">' + options.cancelText + '</button>\
+                <button type="button" class="btn btn-sm btn-' + options.type + ' btn-confirm-ok">' + options.okText + '</button>\
+                <button type="button" class="btn btn-sm btn-default btn-confirm-cancel">' + options.cancelText + '</button>\
             </p>\
         </div>'
     return html;

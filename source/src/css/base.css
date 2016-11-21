@@ -1,49 +1,77 @@
-*{
+* {
     font-family: "microsoft yahei", "Helvetica Neue", Helvetica, STHeiTi, sans-serif !important;
 }
-h1,h2,h3,h4,h5,h6{
+
+h1, h2, h3, h4, h5, h6 {
     text-shadow: none;
-    font-weight:bold;
+    font-weight: bold;
 }
-.alert{
-    position: absolute;
+
+.alert {
+    position: fixed;
     top: 0;
     width: 100%;
+    z-index: 20000;
 }
-.pdt-10{
+
+.pdt-10 {
     padding-top: 10px;
 }
-.pdb-10{
+
+.pdb-10 {
     padding-bottom: 10px;
 }
-.pdl-10{
+
+.pdl-10 {
     padding-left: 10px;
 }
-.pdr-10{
+
+.pdr-10 {
     padding-right: 10px;
 }
-.mgt-10{
+
+.mgt-10 {
     margin-top: 10px;
 }
-.mgb-10{
+
+.mgb-10 {
     margin-bottom: 10px;
 }
-.mgl-10{
+
+.mgl-10 {
     margin-left: 10px;
 }
-.mgr-10{
+
+.mgr-10 {
     margin-right: 10px;
 }
-.block{
-    background: rgba(255,255,255,.1);
+
+.block {
+    background: rgba(255, 255, 255, .1);
     padding-top: 10px;
     padding-bottom: 20px;
     margin-bottom: 20px;
 }
-.tag-title{
+
+.tag-title {
     color: #eee;
     font-size: 18px;
     padding-bottom: 10px;
-    border-bottom: 1px solid rgba(255,255,255, .2);
+    border-bottom: 1px solid rgba(255, 255, 255, .2);
 }
-.info-block{}
+
+.info-block {
+}
+
+.info-block .item {
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.fn-fr {
+    float: right;
+}
+
+.fn-fl {
+    float: left;
+}
