@@ -63,12 +63,13 @@ var ProjectManageCtrl = function () {
             })
         });
 
-        function addProcessElement(eleId){
+
+        function addProcessElement(eleId) {
             var e_item = document.createElement('div');
             e_item.className = 'item';
             e_item.innerHTML = '<div class="form-group">\
                     <div class="input-group">\
-                        <div class="input-group-addon">工序号</div>\
+                        <div class="input-group-addon">工序编号</div>\
                         <input class="form-control process-id" type="email" placeholder="请输入工序号">\
                     </div>\
                 </div>\
@@ -79,7 +80,7 @@ var ProjectManageCtrl = function () {
                     </div>\
                 </div>\
                 <button type="button" class="btn btn-xs btn-danger btn-delete-process">删除</button>';
-            $('#'+eleId).append(e_item);
+            $('#' + eleId).append(e_item);
             $('.btn-delete-process').click(function () {
                 $(this).parent('.item').remove();
             });
@@ -97,7 +98,7 @@ var ProjectManageCtrl = function () {
                         if (list[i].status === 1) {
                             var projectName = list[i].name;
                             var projectId = list[i].id;
-                            var processList = list[i].process;
+                            var processList = list[i].process.sort(sortByProcessId);
                             var ele = document.createElement('div');
                             ele.className = 'panel panel-default';
                             ele.innerHTML = '<div class="panel-heading" role="tab" id="heading_' + projectId + '">\
@@ -117,7 +118,7 @@ var ProjectManageCtrl = function () {
                                         </tr>\
                                     </table>\
                                 </div>\
-                                <button class="btn btn-default btn-modify-add-process" data-toggle="modal" data-target="#modifyAddProcessModal" data-project="'+projectId+'">添加工序</button>\
+                                <button class="btn btn-default btn-modify-add-process" data-toggle="modal" data-target="#modifyAddProcessModal" data-project="' + projectId + '">添加工序</button>\
                             </div>\
                             </div>';
                             $('#projectBox').append(ele);
@@ -180,9 +181,50 @@ var ProjectManageCtrl = function () {
                             }
                         });
                     });
-                    $('.btn-modify-add-process').click(function(){
+                    $('.btn-modify-add-process').click(function () {
                         $('#processBox2 .item').slice(1).each(function () {
                             $(this).remove();
+                        });
+                        var projectId = this.getAttribute('data-project');
+                        $('#btn_modifyAddProcessSave').click(function () {
+                            var tempProcessList = [];
+                            $('#processBox2 .item').each(function () {
+                                tempProcessList.push({
+                                    id: $(this).find('.process-id').val(),
+                                    name: $(this).find('.process-name').val()
+                                });
+                            });
+                            dataProcess.readJSON(variable.data.project, function (data) {
+                                if (data === false) {
+                                    dialog.toast('添加失败，请重试', {
+                                        type: 'danger'
+                                    });
+                                    return false;
+                                }
+                                var list = data.projects;
+                                for (var i = 0, len = list.length; i < len; i++) {
+                                    if (list[i].id == projectId) {
+                                        data.projects[i].process = list[i].process.concat(tempProcessList);
+                                        dataProcess.writeJSON(variable.data.project, JSON.stringify(data), function (flag) {
+                                            if (flag) {
+                                                dialog.toast('添加成功', {
+                                                    type: 'success'
+                                                });
+                                                $('#modifyAddProcessModal').modal('hide');
+                                                showProjectsList();
+                                            } else {
+                                                dialog.toast('添加失败，请重试', {
+                                                    type: 'danger'
+                                                });
+                                            }
+                                        })
+                                        return true;
+                                    }
+                                }
+                                dialog.toast('未找到相关产品', {
+                                    type: 'warning'
+                                });
+                            })
                         });
                     });
                 } else {
@@ -202,7 +244,7 @@ var ProjectManageCtrl = function () {
                         if (list[i].id == projectId) {
                             var currentProject = list[i];
                             $('#modifyProjectName').val(currentProject.name);
-                            $('#btn_modifyProjectSave').click(function(){
+                            $('#btn_modifyProjectSave').click(function () {
                                 currentProject.name = $('#modifyProjectName').val();
                                 data.projects[i] = currentProject;
                                 dataProcess.writeJSON(variable.data.project, JSON.stringify(data), function (flag) {
@@ -232,6 +274,7 @@ var ProjectManageCtrl = function () {
                 }
             });
         }
+
         function modifyProcessById(projectId, processId) {
             dataProcess.readJSON(variable.data.project, function (data) {
                 if (data && data.projects && data.projects.length) {
@@ -240,11 +283,11 @@ var ProjectManageCtrl = function () {
                         if (list[i].id == projectId) {
                             var processList = list[i].process;
                             for (var j = 0, plen = processList.length; j < plen; j++) {
-                                if(processList[j].id == processId){
+                                if (processList[j].id == processId) {
                                     var currentProcess = processList[j];
                                     $('#modifyProcessId').val(currentProcess.id);
                                     $('#modifyProcessName').val(currentProcess.name);
-                                    $('#btn_modifyProcessSave').click(function(){
+                                    $('#btn_modifyProcessSave').click(function () {
                                         currentProcess.id = $('#modifyProcessId').val();
                                         currentProcess.name = $('#modifyProcessName').val();
                                         data.projects[i].process[j] = currentProcess;
@@ -277,7 +320,8 @@ var ProjectManageCtrl = function () {
                 }
             });
         }
-        function deleteProjectById(projectId){
+
+        function deleteProjectById(projectId) {
             dataProcess.readJSON(variable.data.project, function (data) {
                 if (data && data.projects && data.projects.length) {
                     var list = data.projects;
@@ -285,7 +329,6 @@ var ProjectManageCtrl = function () {
                         if (list[i].id == projectId) {
                             list[i].status = 0;
                             data.projects = list;
-                            console.log(data);
                             dataProcess.writeJSON(variable.data.project, JSON.stringify(data), function (flag) {
                                 if (flag) {
                                     dialog.toast('删除成功', {
@@ -311,7 +354,8 @@ var ProjectManageCtrl = function () {
                 }
             });
         }
-        function deleteProcessById(projectId, processId){
+
+        function deleteProcessById(projectId, processId) {
             dataProcess.readJSON(variable.data.project, function (data) {
                 if (data && data.projects && data.projects.length) {
                     var list = data.projects;
@@ -319,7 +363,7 @@ var ProjectManageCtrl = function () {
                         if (list[i].id == projectId) {
                             var processList = list[i].process;
                             for (var j = 0, plen = processList.length; j < plen; j++) {
-                                if(processList[j].id == processId){
+                                if (processList[j].id == processId) {
                                     data.projects[i].process.splice(j, 1);
                                     dataProcess.writeJSON(variable.data.project, JSON.stringify(data), function (flag) {
                                         if (flag) {
@@ -347,6 +391,16 @@ var ProjectManageCtrl = function () {
                     });
                 }
             });
+        }
+
+        function sortByProcessId(a, b) {
+            if (a.id > b.id) {
+                return 1;
+            }
+            if (a.id < b.id) {
+                return -1;
+            }
+            return 0;
         }
     });
 };
