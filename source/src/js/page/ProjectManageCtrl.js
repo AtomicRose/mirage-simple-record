@@ -182,6 +182,7 @@ var ProjectManageCtrl = function () {
                         });
                     });
                     $('.btn-modify-add-process').click(function () {
+                        $('#processBox2 input').val('');
                         $('#processBox2 .item').slice(1).each(function () {
                             $(this).remove();
                         });

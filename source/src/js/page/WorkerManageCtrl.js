@@ -13,8 +13,13 @@ var WorkerManageCtrl = function () {
             var eThis = this;
             var workerName = $('#input_workerName').val();
             var entryTime = $('#input_entryDate').val();
+            var jobNumber = $('#input_jobNumber').val();
             if (!workerName) {
                 dialog.toast('请填写姓名');
+                return false;
+            }
+            if (!jobNumber) {
+                dialog.toast('请填写工号');
                 return false;
             }
             dataProcess.readJSON(variable.data.worker, function (data) {
@@ -32,6 +37,7 @@ var WorkerManageCtrl = function () {
                     name: workerName,
                     entryTime: entryTime,
                     status: 1,
+                    jobNumber: jobNumber,
                     id: data.workers.length + 1
                 });
                 dataProcess.writeJSON(variable.data.worker, JSON.stringify(data), function (flag) {
@@ -40,6 +46,7 @@ var WorkerManageCtrl = function () {
                             type: 'success'
                         });
                         $('#input_workerName').val('');
+                        $('#input_jobNumber').val('');
                         showWorkerList();
                     } else {
                         dialog.toast('添加失败，请重试', {
@@ -64,6 +71,7 @@ var WorkerManageCtrl = function () {
                         if (list[i].status === 1) {
                             var ele = document.createElement('tr');
                             ele.innerHTML = '<td>' + list[i].id + '</td>\
+                            <td>' + list[i].jobNumber + '</td>\
                             <td>' + list[i].name + '</td>\
                             <td>' + list[i].entryTime + '</td>\
                             <td><button class="btn btn-sm btn-warning btn-worker-modify" data-toggle="modal" data-target="#modifyModal" data-worker="' + list[i].id + '">修改</button><button class="btn btn-sm btn-danger btn-worker-delete" data-worker="' + list[i].id + '">删除</button></td>';
@@ -78,11 +86,11 @@ var WorkerManageCtrl = function () {
                     $('.btn-worker-delete').on('click', function () {
                         //delete the worker by id
                         var id = parseInt(this.getAttribute('data-worker'));
-                        dialog.confirm('确定删除该人员吗？',{
+                        dialog.confirm('确定删除该人员吗？', {
                             type: 'danger',
                             title: '确认信息',
-                            callback: function(value){
-                                if(value){
+                            callback: function (value) {
+                                if (value) {
                                     deleteWorkerById(id);
                                 }
                             }
@@ -142,9 +150,19 @@ var WorkerManageCtrl = function () {
                             var currentWorker = list[i];
                             $('#modifyWorkerName').val(currentWorker.name);
                             $('#modifyEntryTime').val(currentWorker.entryTime);
+                            $('#modifyJobNumber').val(currentWorker.jobNumber);
                             $('#btn_modifyWorkerSave').click(function () {
+                                if (!$('#modifyWorkerName').val()) {
+                                    dialog.toast('请填写姓名');
+                                    return false;
+                                }
+                                if (!$('#modifyJobNumber').val()) {
+                                    dialog.toast('请填写工号');
+                                    return false;
+                                }
                                 currentWorker.name = $('#modifyWorkerName').val();
                                 currentWorker.entryTime = $('#modifyEntryTime').val();
+                                currentWorker.jobNumber = $('#modifyJobNumber').val();
                                 data.workers[currentIndex] = currentWorker;
                                 dataProcess.writeJSON(variable.data.worker, JSON.stringify(data), function (flag) {
                                     if (flag) {

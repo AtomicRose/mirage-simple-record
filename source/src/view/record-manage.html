@@ -118,7 +118,7 @@
     <!--end add record-->
     <div class="row block">
         <div class="col-md-12">
-            <div class="tag-title">工作记录</div>
+            <div class="tag-title">工作记录 <a download="download.xls" class="btn btn-sm btn-info fn-fr" id="btn_exportRecord">导出当前表格(Excel)</a></div>
         </div>
         <div class="col-md-12 pdt-10">
             <form class="form-inline" role="form">
@@ -149,29 +149,64 @@
             <div class="table-responsive">
                 <table class="table table-striped table-bordered" id="table_recordList">
                     <tr>
+                        <th>工号</th>
                         <th>姓名</th>
                         <th>日期</th>
                         <th>产品/款式</th>
-                        <th>工序</th>
+                        <th>工序号</th>
+                        <th>工序名称</th>
                         <th>数量</th>
                         <th>操作</th>
                     </tr>
                 </table>
             </div>
-            <nav>
-                <ul class="pagination">
-                    <li><a href="#">&laquo;</a></li>
-                    <li><a href="#">1</a></li>
-                    <li><a href="#">2</a></li>
-                    <li><a href="#">3</a></li>
-                    <li><a href="#">4</a></li>
-                    <li><a href="#">5</a></li>
-                    <li><a href="#">&raquo;</a></li>
-                </ul>
-            </nav>
+            <!--<nav>-->
+                <!--<ul class="pagination">-->
+                    <!--<li><a href="#">&laquo;</a></li>-->
+                    <!--<li><a href="#">1</a></li>-->
+                    <!--<li><a href="#">2</a></li>-->
+                    <!--<li><a href="#">3</a></li>-->
+                    <!--<li><a href="#">4</a></li>-->
+                    <!--<li><a href="#">5</a></li>-->
+                    <!--<li><a href="#">&raquo;</a></li>-->
+                <!--</ul>-->
+            <!--</nav>-->
         </div>
     </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="modifyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel">修改人员信息</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="col-md-12">
+                        <form role="form">
+                            <div class="form-group">
+                                <label for="modifyWorkerName">姓名</label>
+                                <input type="text" class="form-control" id="modifyWorkerName" placeholder="请输入姓名">
+                            </div>
+                            <div class="form-group">
+                                <label for="modifyEntryTime">入职时间</label>
+                                <input type="date" class="form-control" id="modifyEntryTime">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-info" id="btn_modifyWorkerSave">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 <script src="../dist/bundle.js"></script>
 </html>

@@ -82,8 +82,13 @@
 	            var eThis = this;
 	            var workerName = $('#input_workerName').val();
 	            var entryTime = $('#input_entryDate').val();
+	            var jobNumber = $('#input_jobNumber').val();
 	            if (!workerName) {
 	                dialog.toast('请填写姓名');
+	                return false;
+	            }
+	            if (!jobNumber) {
+	                dialog.toast('请填写工号');
 	                return false;
 	            }
 	            dataProcess.readJSON(variable.data.worker, function (data) {
@@ -101,6 +106,7 @@
 	                    name: workerName,
 	                    entryTime: entryTime,
 	                    status: 1,
+	                    jobNumber: jobNumber,
 	                    id: data.workers.length + 1
 	                });
 	                dataProcess.writeJSON(variable.data.worker, JSON.stringify(data), function (flag) {
@@ -109,6 +115,7 @@
 	                            type: 'success'
 	                        });
 	                        $('#input_workerName').val('');
+	                        $('#input_jobNumber').val('');
 	                        showWorkerList();
 	                    } else {
 	                        dialog.toast('添加失败，请重试', {
@@ -131,6 +138,7 @@
 	                        if (list[i].status === 1) {
 	                            var ele = document.createElement('tr');
 	                            ele.innerHTML = '<td>' + list[i].id + '</td>\
+	                            <td>' + list[i].jobNumber + '</td>\
 	                            <td>' + list[i].name + '</td>\
 	                            <td>' + list[i].entryTime + '</td>\
 	                            <td><button class="btn btn-sm btn-warning btn-worker-modify" data-toggle="modal" data-target="#modifyModal" data-worker="' + list[i].id + '">修改</button><button class="btn btn-sm btn-danger btn-worker-delete" data-worker="' + list[i].id + '">删除</button></td>';
@@ -208,9 +216,19 @@
 	                            var currentWorker = list[i];
 	                            $('#modifyWorkerName').val(currentWorker.name);
 	                            $('#modifyEntryTime').val(currentWorker.entryTime);
+	                            $('#modifyJobNumber').val(currentWorker.jobNumber);
 	                            $('#btn_modifyWorkerSave').click(function () {
+	                                if (!$('#modifyWorkerName').val()) {
+	                                    dialog.toast('请填写姓名');
+	                                    return false;
+	                                }
+	                                if (!$('#modifyJobNumber').val()) {
+	                                    dialog.toast('请填写工号');
+	                                    return false;
+	                                }
 	                                currentWorker.name = $('#modifyWorkerName').val();
 	                                currentWorker.entryTime = $('#modifyEntryTime').val();
+	                                currentWorker.jobNumber = $('#modifyJobNumber').val();
 	                                data.workers[currentIndex] = currentWorker;
 	                                dataProcess.writeJSON(variable.data.worker, JSON.stringify(data), function (flag) {
 	                                    if (flag) {
@@ -591,6 +609,7 @@
 	                        });
 	                    });
 	                    $('.btn-modify-add-process').click(function () {
+	                        $('#processBox2 input').val('');
 	                        $('#processBox2 .item').slice(1).each(function () {
 	                            $(this).remove();
 	                        });
@@ -831,6 +850,9 @@
 	var dialog = __webpack_require__(3);
 	var dataProcess = __webpack_require__(5);
 	var variable = __webpack_require__(8);
+	var excelExport = __webpack_require__(15);
+
+	//console.log(excelExport);
 
 	var RecordManageCtrl = function RecordManageCtrl() {
 	    $(document).ready(function () {
@@ -851,16 +873,19 @@
 	            });
 	            if (data) {
 	                for (var i = 0, len = data.length; i < len; i++) {
-	                    var e = document.createElement('option');
-	                    e.value = data[i].id;
-	                    e.innerHTML = data[i].name;
-	                    e.setAttribute('data-worker-name', data[i].name);
-	                    $('#workerId').append(e);
-	                    var e2 = document.createElement('option');
-	                    e2.value = data[i].id;
-	                    e2.innerHTML = data[i].name;
-	                    e2.setAttribute('data-worker-name', data[i].name);
-	                    $('#search_workerName').append(e2);
+	                    if (data[i].status == 1) {
+	                        var e = document.createElement('option');
+	                        e.value = data[i].id;
+	                        e.innerHTML = data[i].name;
+	                        e.setAttribute('data-worker-name', data[i].name);
+	                        e.setAttribute('data-job-number', data[i].jobNumber);
+	                        $('#workerId').append(e);
+	                        var e2 = document.createElement('option');
+	                        e2.value = data[i].id;
+	                        e2.innerHTML = data[i].name;
+	                        e2.setAttribute('data-worker-name', data[i].name);
+	                        $('#search_workerName').append(e2);
+	                    }
 	                }
 	            }
 	        });
@@ -870,11 +895,13 @@
 	            });
 	            if (data) {
 	                for (var i = 0, len = data.length; i < len; i++) {
-	                    var e = document.createElement('option');
-	                    e.value = data[i].id;
-	                    e.innerHTML = data[i].name;
-	                    e.setAttribute('data-project-name', data[i].name);
-	                    $('#projectId').append(e);
+	                    if (data[i].status == 1) {
+	                        var e = document.createElement('option');
+	                        e.value = data[i].id;
+	                        e.innerHTML = data[i].name;
+	                        e.setAttribute('data-project-name', data[i].name);
+	                        $('#projectId').append(e);
+	                    }
 	                }
 	                $('#projectId').on('change', function () {
 	                    var currentProjectId = $('#projectId').val();
@@ -904,12 +931,13 @@
 	            var workerId = $('#workerId').val();
 	            var e_workerId = document.getElementById('workerId');
 	            var workerName = e_workerId.options[e_workerId.selectedIndex].getAttribute('data-worker-name');
+	            var jobNumber = e_workerId.options[e_workerId.selectedIndex].getAttribute('data-job-number');
 	            var projectId = $('#projectId').val();
 	            var e_projectId = document.getElementById('projectId');
 	            var projectName = e_projectId.options[e_projectId.selectedIndex].getAttribute('data-project-name');
 	            var processId = $('#processId').val();
 	            var e_processId = document.getElementById('processId');
-	            var processName = e_processId.options[e_projectId.selectedIndex].getAttribute('data-process-name');
+	            var processName = e_processId.options[e_processId.selectedIndex].getAttribute('data-process-name');
 	            var workCount = $('#workCount').val();
 	            if (workerId == -1) {
 	                dialog.toast('请选择工作人员', {
@@ -943,6 +971,7 @@
 	                        time: workDate,
 	                        workerId: workerId,
 	                        workerName: workerName,
+	                        jobNumber: jobNumber,
 	                        projectId: projectId,
 	                        projectName: projectName,
 	                        processId: processId,
@@ -957,6 +986,7 @@
 	                            time: workDate,
 	                            workerId: workerId,
 	                            workerName: workerName,
+	                            jobNumber: jobNumber,
 	                            projectId: projectId,
 	                            projectName: projectName,
 	                            processId: processId,
@@ -969,6 +999,7 @@
 	                            time: workDate,
 	                            workerId: workerId,
 	                            workerName: workerName,
+	                            jobNumber: jobNumber,
 	                            projectId: projectId,
 	                            projectName: projectName,
 	                            processId: processId,
@@ -986,6 +1017,9 @@
 	                        $('#workerId').val(-1);
 	                        $('#projectId').val(-1);
 	                        $('#processId').val(-1);
+	                        $('#processId option').slice(1).each(function () {
+	                            this.remove();
+	                        });
 	                        $('#workCount').val('');
 	                        showTodayData();
 	                        return true;
@@ -1009,13 +1043,19 @@
 	            return a.time > b.time ? 1 : -1;
 	        }
 
+	        function sortByJobNumber(a, b) {
+	            return a.jobNumber > b.jobNumber ? 1 : -1;
+	        }
+
 	        function appendToRecord(list) {
 	            for (var i = 0, len = list.length; i < len; i++) {
 	                var e = document.createElement('tr');
 	                var thisObj = list[i];
-	                e.innerHTML = '<td>' + thisObj.workerName + '</td>\
+	                e.innerHTML = '<td>' + thisObj.jobNumber + '</td>\
+	                    <td>' + thisObj.workerName + '</td>\
 	                    <td>' + thisObj.time + '</td>\
 	                    <td>' + thisObj.projectName + '</td>\
+	                    <td>' + thisObj.processId + '</td>\
 	                    <td>' + thisObj.processName + '</td>\
 	                    <td>' + thisObj.count + '</td>\
 	                    <td><button type="button" class="btn btn-sm btn-warning btn-modify-record" data-time="' + thisObj.time + '" data-worker-id="' + thisObj.workerId + '" data-record-id="' + thisObj.recordId + '">修改</button><button type="button" class="btn btn-sm btn-danger btn-delete-record" data-time="' + thisObj.time + '" data-worker-id="' + thisObj.workerId + '" data-record-id="' + thisObj.recordId + '">删除</button></td>';
@@ -1030,7 +1070,21 @@
 	            var time = this.getAttribute('data-time');
 	            var workerId = this.getAttribute('data-worker-id');
 	            var recordId = this.getAttribute('data-record-id');
-	            deleteRecord(time, workerId, recordId);
+	            dialog.confirm('确定删除该工作记录吗？', {
+	                type: 'danger',
+	                title: '警告',
+	                callback: function callback(value) {
+	                    if (value) {
+	                        deleteRecord(time, workerId, recordId);
+	                    }
+	                }
+	            });
+	        });
+	        $(document).on('click', '.btn-modify-record', function () {
+	            dialog.toast('请删除该条记录后重新添加', {
+	                type: 'warning',
+	                title: '操作提示'
+	            });
 	        });
 
 	        function deleteRecord(time, workerId, recordId) {
@@ -1131,11 +1185,29 @@
 	                        count--;
 	                    }
 	                    if (count == 0) {
-	                        appendToRecord(sortArray.sort(sortByName));
+	                        appendToRecord(sortArray.sort(sortByJobNumber));
 	                    }
 	                });
 	            }
 	        }
+
+	        $('#btn_exportRecord').click(function () {
+	            if ($('#table_recordList tr').length < 2) {
+	                dialog.toast('该列表没有内容，无需导出', {
+	                    type: 'danger'
+	                });
+	                return false;
+	            }
+	            var sd = $('#search_startTime').val();
+	            var ed = $('#search_endTime').val();
+	            var e_workerId = document.getElementById('search_workerName');
+	            var workerName = e_workerId.options[e_workerId.selectedIndex].getAttribute('data-worker-name');
+	            console.log(e_workerId.options[e_workerId.selectedIndex]);
+	            var sheetName = (workerName ? workerName : '') + sd.replace(/\-/g, '') + '-' + ed.replace(/\-/g, '');
+	            var fileName = (workerName ? workerName + '-' : '') + '统计表' + sd.replace(/\-/g, '') + '-' + ed.replace(/\-/g, '');
+	            $('#btn_exportRecord').attr('download', fileName + '.xls');
+	            return excelExport.excel(this, 'table_recordList', sheetName);
+	        });
 	    });
 	};
 	module.exports = RecordManageCtrl;
@@ -1238,6 +1310,142 @@
 	    });
 	};
 	module.exports = getWorkRecordByDate;
+
+/***/ },
+/* 15 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	var ExcelExport = function () {
+
+	    function b64toBlob(b64Data, contentType, sliceSize) {
+	        // function taken from http://stackoverflow.com/a/16245768/2591950
+	        // author Jeremy Banks http://stackoverflow.com/users/1114/jeremy-banks
+	        contentType = contentType || '';
+	        sliceSize = sliceSize || 512;
+
+	        var byteCharacters = window.atob(b64Data);
+	        var byteArrays = [];
+
+	        var offset;
+	        for (offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+	            var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+	            var byteNumbers = new Array(slice.length);
+	            var i;
+	            for (i = 0; i < slice.length; i = i + 1) {
+	                byteNumbers[i] = slice.charCodeAt(i);
+	            }
+
+	            var byteArray = new window.Uint8Array(byteNumbers);
+
+	            byteArrays.push(byteArray);
+	        }
+
+	        var blob = new window.Blob(byteArrays, {
+	            type: contentType
+	        });
+	        return blob;
+	    }
+
+	    var version = "2.0.0";
+	    var uri = { excel: 'data:application/vnd.ms-excel;base64,', csv: 'data:application/csv;base64,' };
+	    var template = { excel: '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta name=ProgId content=Excel.Sheet> <meta name=Generator content="Microsoft Excel 11"><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>{worksheet}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>{table}</table></body></html>' };
+	    var csvDelimiter = ",";
+	    var csvNewLine = "\r\n";
+	    var base64 = function base64(s) {
+	        return window.btoa(window.unescape(encodeURIComponent(s)));
+	    };
+	    var format = function format(s, c) {
+	        return s.replace(new RegExp("{(\\w+)}", "g"), function (m, p) {
+	            return c[p];
+	        });
+	    };
+
+	    var get = function get(element) {
+	        if (!element.nodeType) {
+	            return document.getElementById(element);
+	        }
+	        return element;
+	    };
+
+	    var fixCSVField = function fixCSVField(value) {
+	        var fixedValue = value;
+	        var addQuotes = value.indexOf(csvDelimiter) !== -1 || value.indexOf('\r') !== -1 || value.indexOf('\n') !== -1;
+	        var replaceDoubleQuotes = value.indexOf('"') !== -1;
+
+	        if (replaceDoubleQuotes) {
+	            fixedValue = fixedValue.replace(/"/g, '""');
+	        }
+	        if (addQuotes || replaceDoubleQuotes) {
+	            fixedValue = '"' + fixedValue + '"';
+	        }
+
+	        return fixedValue;
+	    };
+
+	    var tableToCSV = function tableToCSV(table) {
+	        var data = "";
+	        var i, j, row, col;
+	        for (i = 0; i < table.rows.length; i = i + 1) {
+	            row = table.rows[i];
+	            for (j = 0; j < row.cells.length; j = j + 1) {
+	                col = row.cells[j];
+	                data = data + (j ? csvDelimiter : '') + fixCSVField(col.textContent.trim());
+	            }
+	            data = data + csvNewLine;
+	        }
+	        return data;
+	    };
+
+	    function createDownloadLink(anchor, base64data, exporttype, filename) {
+	        var blob;
+	        if (window.navigator.msSaveBlob) {
+	            blob = b64toBlob(base64data, exporttype);
+	            window.navigator.msSaveBlob(blob, filename);
+	            return false;
+	        } else if (window.URL.createObjectURL) {
+	            blob = b64toBlob(base64data, exporttype);
+	            var blobUrl = window.URL.createObjectURL(blob, exporttype, filename);
+	            anchor.href = blobUrl;
+	        } else {
+	            var hrefvalue = "data:" + exporttype + ";base64," + base64data;
+	            anchor.download = filename;
+	            anchor.href = hrefvalue;
+	        }
+
+	        // Return true to allow the link to work
+	        return true;
+	    }
+
+	    var ee = {
+	        /** @export */
+	        excel: function excel(anchor, table, name) {
+	            table = get(table);
+	            var ctx = { worksheet: name || 'Worksheet', table: table.innerHTML };
+	            var b64 = base64(format(template.excel, ctx));
+	            return createDownloadLink(anchor, b64, 'application/vnd.ms-excel', 'export.xls');
+	        },
+	        /** @export */
+	        csv: function csv(anchor, table, delimiter, newLine) {
+	            if (delimiter !== undefined && delimiter) {
+	                csvDelimiter = delimiter;
+	            }
+	            if (newLine !== undefined && newLine) {
+	                csvNewLine = newLine;
+	            }
+
+	            table = get(table);
+	            var csvData = tableToCSV(table);
+	            var b64 = base64(csvData);
+	            return createDownloadLink(anchor, b64, 'application/csv', 'export.csv');
+	        }
+	    };
+
+	    return ee;
+	}();
+	module.exports = ExcelExport;
 
 /***/ }
 /******/ ]);

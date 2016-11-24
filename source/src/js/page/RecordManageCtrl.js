@@ -5,6 +5,9 @@ var getWorkRecordByDate = require('./getWorkRecordByDate');
 var dialog = require('../provider/dialog');
 var dataProcess = require('../provider/dataProcess');
 var variable = require('../provider/variable');
+var excelExport = require('../provider/excelexport');
+
+//console.log(excelExport);
 
 var RecordManageCtrl = function () {
     $(document).ready(function () {
@@ -13,7 +16,7 @@ var RecordManageCtrl = function () {
         }
         var now = new Date();
         var nowStr = now.getFullYear().toString() + '-' + (now.getMonth() + 1).toString() + '-' + now.getDate().toString();
-        $('#workDate').val(nowStr)
+        $('#workDate').val(nowStr);
         $('#search_startTime').val(nowStr);
         $('#search_endTime').val(nowStr);
         getWorkerList(function (data) {
@@ -25,16 +28,19 @@ var RecordManageCtrl = function () {
             });
             if (data) {
                 for (var i = 0, len = data.length; i < len; i++) {
-                    var e = document.createElement('option');
-                    e.value = data[i].id;
-                    e.innerHTML = data[i].name;
-                    e.setAttribute('data-worker-name', data[i].name);
-                    $('#workerId').append(e);
-                    var e2 = document.createElement('option');
-                    e2.value = data[i].id;
-                    e2.innerHTML = data[i].name;
-                    e2.setAttribute('data-worker-name', data[i].name);
-                    $('#search_workerName').append(e2);
+                    if(data[i].status == 1){
+                        var e = document.createElement('option');
+                        e.value = data[i].id;
+                        e.innerHTML = data[i].name;
+                        e.setAttribute('data-worker-name', data[i].name);
+                        e.setAttribute('data-job-number', data[i].jobNumber);
+                        $('#workerId').append(e);
+                        var e2 = document.createElement('option');
+                        e2.value = data[i].id;
+                        e2.innerHTML = data[i].name;
+                        e2.setAttribute('data-worker-name', data[i].name);
+                        $('#search_workerName').append(e2);
+                    }
                 }
             }
         });
@@ -44,11 +50,13 @@ var RecordManageCtrl = function () {
             });
             if (data) {
                 for (var i = 0, len = data.length; i < len; i++) {
-                    var e = document.createElement('option');
-                    e.value = data[i].id;
-                    e.innerHTML = data[i].name;
-                    e.setAttribute('data-project-name', data[i].name);
-                    $('#projectId').append(e);
+                    if(data[i].status == 1){
+                        var e = document.createElement('option');
+                        e.value = data[i].id;
+                        e.innerHTML = data[i].name;
+                        e.setAttribute('data-project-name', data[i].name);
+                        $('#projectId').append(e);
+                    }
                 }
                 $('#projectId').on('change', function () {
                     var currentProjectId = $('#projectId').val();
@@ -78,12 +86,13 @@ var RecordManageCtrl = function () {
             var workerId = $('#workerId').val();
             var e_workerId = document.getElementById('workerId');
             var workerName = e_workerId.options[e_workerId.selectedIndex].getAttribute('data-worker-name');
+            var jobNumber = e_workerId.options[e_workerId.selectedIndex].getAttribute('data-job-number');
             var projectId = $('#projectId').val();
             var e_projectId = document.getElementById('projectId');
             var projectName = e_projectId.options[e_projectId.selectedIndex].getAttribute('data-project-name');
             var processId = $('#processId').val();
             var e_processId = document.getElementById('processId');
-            var processName = e_processId.options[e_projectId.selectedIndex].getAttribute('data-process-name');
+            var processName = e_processId.options[e_processId.selectedIndex].getAttribute('data-process-name');
             var workCount = $('#workCount').val();
             if (workerId == -1) {
                 dialog.toast('请选择工作人员', {
@@ -118,6 +127,7 @@ var RecordManageCtrl = function () {
                             time: workDate,
                             workerId: workerId,
                             workerName: workerName,
+                            jobNumber: jobNumber,
                             projectId: projectId,
                             projectName: projectName,
                             processId: processId,
@@ -133,6 +143,7 @@ var RecordManageCtrl = function () {
                             time: workDate,
                             workerId: workerId,
                             workerName: workerName,
+                            jobNumber: jobNumber,
                             projectId: projectId,
                             projectName: projectName,
                             processId: processId,
@@ -146,6 +157,7 @@ var RecordManageCtrl = function () {
                                 time: workDate,
                                 workerId: workerId,
                                 workerName: workerName,
+                                jobNumber: jobNumber,
                                 projectId: projectId,
                                 projectName: projectName,
                                 processId: processId,
@@ -164,6 +176,9 @@ var RecordManageCtrl = function () {
                         $('#workerId').val(-1);
                         $('#projectId').val(-1);
                         $('#processId').val(-1);
+                        $('#processId option').slice(1).each(function(){
+                            this.remove();
+                        });
                         $('#workCount').val('');
                         showTodayData();
                         return true;
@@ -187,13 +202,19 @@ var RecordManageCtrl = function () {
             return a.time > b.time ? 1 : -1;
         }
 
+        function sortByJobNumber(a, b){
+            return a.jobNumber > b.jobNumber ? 1 : -1;
+        }
+
         function appendToRecord(list) {
             for (var i = 0, len = list.length; i < len; i++) {
                 var e = document.createElement('tr');
                 var thisObj = list[i];
-                e.innerHTML = '<td>' + thisObj.workerName + '</td>\
+                e.innerHTML = '<td>' + thisObj.jobNumber + '</td>\
+                    <td>' + thisObj.workerName + '</td>\
                     <td>' + thisObj.time + '</td>\
                     <td>' + thisObj.projectName + '</td>\
+                    <td>' + thisObj.processId + '</td>\
                     <td>' + thisObj.processName + '</td>\
                     <td>' + thisObj.count + '</td>\
                     <td><button type="button" class="btn btn-sm btn-warning btn-modify-record" data-time="' + thisObj.time + '" data-worker-id="' + thisObj.workerId + '" data-record-id="' + thisObj.recordId + '">修改</button><button type="button" class="btn btn-sm btn-danger btn-delete-record" data-time="' + thisObj.time + '" data-worker-id="' + thisObj.workerId + '" data-record-id="' + thisObj.recordId + '">删除</button></td>';
@@ -204,11 +225,26 @@ var RecordManageCtrl = function () {
             //delete the record
         }
 
-        $(document).on('click','.btn-delete-record',function(){
-            var time =this.getAttribute('data-time');
+        $(document).on('click', '.btn-delete-record', function () {
+            var time = this.getAttribute('data-time');
             var workerId = this.getAttribute('data-worker-id');
             var recordId = this.getAttribute('data-record-id');
-            deleteRecord(time, workerId, recordId);
+            dialog.confirm('确定删除该工作记录吗？', {
+                type: 'danger',
+                title: '警告',
+                callback: function (value) {
+                    if (value) {
+                        deleteRecord(time, workerId, recordId);
+                    }
+                }
+            });
+
+        });
+        $(document).on('click', '.btn-modify-record', function () {
+            dialog.toast('请删除该条记录后重新添加', {
+                type: 'warning',
+                title: '操作提示'
+            });
         });
 
         function deleteRecord(time, workerId, recordId) {
@@ -309,11 +345,29 @@ var RecordManageCtrl = function () {
                         count--;
                     }
                     if (count == 0) {
-                        appendToRecord(sortArray.sort(sortByName));
+                        appendToRecord(sortArray.sort(sortByJobNumber));
                     }
                 });
             }
         }
+
+        $('#btn_exportRecord').click(function () {
+            if ($('#table_recordList tr').length < 2) {
+                dialog.toast('该列表没有内容，无需导出', {
+                    type: 'danger'
+                });
+                return false;
+            }
+            var sd = $('#search_startTime').val();
+            var ed = $('#search_endTime').val();
+            var e_workerId = document.getElementById('search_workerName');
+            var workerName = e_workerId.options[e_workerId.selectedIndex].getAttribute('data-worker-name');
+            console.log(e_workerId.options[e_workerId.selectedIndex]);
+            var sheetName = (workerName ? workerName : '') + sd.replace(/\-/g, '') + '-' + ed.replace(/\-/g, '');
+            var fileName = (workerName ? workerName + '-' : '') + '统计表' + sd.replace(/\-/g, '') + '-' + ed.replace(/\-/g, '');
+            $('#btn_exportRecord').attr('download', fileName + '.xls');
+            return excelExport.excel(this, 'table_recordList', sheetName);
+        });
     });
 };
 module.exports = RecordManageCtrl;
