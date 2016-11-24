@@ -137,7 +137,7 @@
 	                    for (var i = 0, len = list.length; i < len; i++) {
 	                        if (list[i].status === 1) {
 	                            var ele = document.createElement('tr');
-	                            ele.innerHTML = '<td>' + list[i].id + '</td>\
+	                            ele.innerHTML = '\
 	                            <td>' + list[i].jobNumber + '</td>\
 	                            <td>' + list[i].name + '</td>\
 	                            <td>' + list[i].entryTime + '</td>\
